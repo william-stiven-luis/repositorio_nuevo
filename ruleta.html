@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Ruleta Personalizable</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            background-image: url("https://images.unsplash.com/photo-1604076913837-52ab5629fba9");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: Arial;
+        }
+
+        .card {
+            border-radius: 25px;
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.9);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+            border: none;
+        }
+
+        canvas {
+            margin-top: 20px;
+            border-radius: 50%;
+            border: 10px solid white;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+        }
+
+        #flecha {
+            font-size: 50px;
+            color: red;
+            text-shadow: 0 0 10px rgba(0, 0, 0, 0.7);
+        }
+
+        #resultado {
+            font-size: 28px;
+            font-weight: bold;
+            margin-top: 15px;
+            color: #ff9800;
+            text-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
+        }
+
+        input {
+            margin-bottom: 8px;
+        }
+
+        button {
+            border-radius: 20px !important;
+            font-weight: bold;
+            padding: 10px 20px;
+        }
+    </style>
+
+</head>
+
+<body>
+
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-6">
+
+                <div class="card p-4 text-center">
+
+                    <h2 class="mb-3">🎡 Ruleta Personalizable</h2>
+
+                    <div class="mb-3">
+                        <label class="form-label">Cantidad de campos</label>
+                        <input type="number" id="cantidad" class="form-control" min="2" max="20" value="6">
+                    </div>
+
+                    <button class="btn btn-primary mb-3" onclick="crearCampos()">Crear Campos</button>
+
+                    <div id="inputs" class="mb-3"></div>
+
+                    <div class="d-flex gap-2 justify-content-center mb-3">
+                        <button class="btn btn-success" onclick="crearRuleta()">Crear Ruleta</button>
+                        <button class="btn btn-warning" onclick="girar()">Girar</button>
+                    </div>
+
+                    <div id="flecha">▼</div>
+
+                    <canvas id="ruleta" width="400" height="400"></canvas>
+
+                    <div id="resultado"></div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+
+        let opciones = [];
+        let colores = [];
+        let anguloActual = 0;
+
+        const canvas = document.getElementById("ruleta");
+        const ctx = canvas.getContext("2d");
+
+        function crearCampos() {
+
+            const cantidad = document.getElementById("cantidad").value;
+            const contenedor = document.getElementById("inputs");
+
+            contenedor.innerHTML = "";
+
+            for (let i = 0; i < cantidad; i++) {
+
+                contenedor.innerHTML +=
+                    `<input type="text" class="form-control" placeholder="Campo ${i + 1}" id="campo${i}">`;
+
+            }
+
+        }
+
+        function crearRuleta() {
+
+            opciones = [];
+            colores = [];
+
+            const cantidad = document.getElementById("cantidad").value;
+
+            for (let i = 0; i < cantidad; i++) {
+
+                const texto = document.getElementById("campo" + i).value || ("Campo " + (i + 1));
+                opciones.push(texto);
+
+                colores.push(`hsl(${i * 360 / cantidad},70%,60%)`);
+
+            }
+
+            dibujarRuleta();
+
+        }
+
+        function dibujarRuleta() {
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            const centro = canvas.width / 2;
+            const radio = 180;
+            const angulo = (2 * Math.PI) / opciones.length;
+
+            for (let i = 0; i < opciones.length; i++) {
+
+                ctx.beginPath();
+                ctx.moveTo(centro, centro);
+
+                ctx.arc(
+                    centro,
+                    centro,
+                    radio,
+                    anguloActual + i * angulo,
+                    anguloActual + (i + 1) * angulo
+                );
+
+                ctx.fillStyle = colores[i];
+                ctx.fill();
+
+                ctx.save();
+
+                ctx.translate(centro, centro);
+                ctx.rotate(anguloActual + (i + 0.5) * angulo);
+
+                ctx.fillStyle = "black";
+                ctx.font = "16px Arial";
+
+                ctx.fillText(opciones[i], 90, 5);
+
+                ctx.restore();
+
+            }
+
+            ctx.beginPath();
+            ctx.arc(200, 200, 40, 0, 2 * Math.PI);
+            ctx.fillStyle = "#ffffff";
+            ctx.fill();
+            ctx.strokeStyle = "#333";
+            ctx.lineWidth = 5;
+            ctx.stroke();
+
+        }
+
+        function girar() {
+
+            const vueltas = Math.random() * 2000 + 2000;
+            let inicio = null;
+
+            function animar(t) {
+
+                if (!inicio) inicio = t;
+
+                const progreso = t - inicio;
+
+                anguloActual = (vueltas * progreso / 3000) * Math.PI / 180;
+
+                dibujarRuleta();
+
+                if (progreso < 3000) {
+
+                    requestAnimationFrame(animar);
+
+                } else {
+
+                    mostrarResultado();
+
+                }
+
+            }
+
+            requestAnimationFrame(animar);
+
+        }
+
+        function mostrarResultado() {
+
+            const angulo = (2 * Math.PI) / opciones.length;
+
+            let anguloNormal = anguloActual % (2 * Math.PI);
+
+            let indice = opciones.length - Math.floor((anguloNormal / (2 * Math.PI)) * opciones.length) - 1;
+
+            if (indice < 0) {
+
+                indice = opciones.length + indice;
+
+            }
+
+            document.getElementById("resultado").innerText = "🎉 Resultado: " + opciones[indice];
+
+        }
+
+        crearCampos();
+
+    </script>
+
+</body>
+
+</html>

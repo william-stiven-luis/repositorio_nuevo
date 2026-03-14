@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Boletos - Estacionamiento</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body,
+        html {
+            height: 100%;
+            margin: 0;
+        }
+
+        /* Dividimos la pantalla en dos mitades */
+        .half-screen {
+            display: flex;
+            height: 100vh;
+        }
+
+        .left-half {
+            flex: 1;
+            background: linear-gradient(135deg, #6a11cb, #2575fc);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #fff;
+        }
+
+        .right-half {
+            flex: 1;
+            background: url('IMG/pepe.jpg') no-repeat center center;
+            background-size: cover;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .card {
+            background-color: rgba(255, 255, 255, 0.95);
+            color: #333;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 450px;
+        }
+
+        .btn-primary {
+            background-color: #2575fc;
+            border: none;
+        }
+
+        .btn-primary:hover {
+            background-color: #1a5dcc;
+        }
+
+        .registro-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .registro-item {
+            background-color: #f1f1f1;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+        }
+
+        .main-title {
+            text-align: center;
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 40px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(90deg, #2575fc, #6a11cb);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 2px;
+            text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Estilo opcional para el contador */
+        #ticketCounter {
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="main-title">Estacionamiento</div>
+
+    <div class="half-screen">
+        <!-- Lado izquierdo: formulario -->
+        <div class="left-half">
+            <div class="card">
+                <h2 class="text-center mb-4">Registro de Boletos</h2>
+                <form id="ticketForm">
+                    <div class="mb-3">
+                        <label for="ticketNumber" class="form-label">Número de Boleto</label>
+                        <input type="text" class="form-control" id="ticketNumber" placeholder="Ej: 001" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="plateNumber" class="form-label">Placa del Vehículo</label>
+                        <input type="text" class="form-control" id="plateNumber" placeholder="Ej: ABC-1234" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="entryTime" class="form-label">Hora de Entrada</label>
+                        <input type="time" class="form-control" id="entryTime" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Registrar Boleto</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Lado derecho: lista de registros -->
+        <div class="right-half">
+            <div class="card" style="max-width: 400px;">
+                <h3 class="text-center mb-3">Boletos Registrados</h3>
+                <!-- Contador de boletos -->
+                <p class="text-center" id="ticketCounter">Total de boletos: 0</p>
+                <div id="ticketList" class="registro-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const form = document.getElementById('ticketForm');
+        const ticketList = document.getElementById('ticketList');
+        let totalTickets = 0; // contador inicial
+
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const ticketNumber = document.getElementById('ticketNumber').value;
+            const plateNumber = document.getElementById('plateNumber').value;
+            const entryTime = document.getElementById('entryTime').value;
+
+            const item = document.createElement('div');
+            item.className = 'registro-item';
+            item.innerHTML = `
+                <strong>Boleto:</strong> ${ticketNumber} <br>
+                <strong>Placa:</strong> ${plateNumber} <br>
+                <strong>Hora:</strong> ${entryTime}
+            `;
+
+            ticketList.appendChild(item);
+            form.reset();
+
+            // Actualizar contador
+            totalTickets++;
+            document.getElementById('ticketCounter').textContent = `Total de boletos: ${totalTickets}`;
+        });
+    </script>
+</body>
+
+</html>
